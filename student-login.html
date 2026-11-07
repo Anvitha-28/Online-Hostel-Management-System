@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Login - HostelEase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-r from-blue-100 to-purple-200 min-h-screen flex flex-col justify-center items-center">
+
+  <h1 class="text-4xl font-bold mb-8 text-blue-900">🎓 Student Login</h1>
+
+  <div class="bg-white p-8 rounded-2xl shadow-xl w-80 flex flex-col items-center space-y-6">
+
+    <form onsubmit="studentLogin(event)" class="w-full">
+      <input id="studentId" type="text" placeholder="Enter Student ID" required
+             class="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6">
+
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
+        <i class="fas fa-sign-in-alt mr-2"></i> Login
+      </button>
+    </form>
+
+    <button onclick="location.href='login.html'" class="text-blue-700 hover:underline text-sm mt-4">
+      ← Back to Home
+    </button>
+
+  </div>
+
+  <script>
+    function studentLogin(e) {
+      e.preventDefault();
+      const id = document.getElementById('studentId').value;
+      const student = localStorage.getItem(`student-${id}`);
+      if (student) {
+        localStorage.setItem("loggedStudent", id);
+        location.href = "student-dashboard.html";
+      } else {
+        alert("Student ID not found. Please register or contact admin.");
+      }
+    }
+  </script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Dashboard - HostelEase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .filter-tab.active {
+      font-weight: bold;
+      border: 2px solid #3b82f6;
+      background-color: #bfdbfe;
+    }
+
+    /* Dark mode styles */
+    .dark {
+      background: #1e293b !important;
+      color: #f1f5f9 !important;
+    }
+    .dark input, .dark textarea {
+      background-color: #334155 !important;
+      color: white !important;
+      border-color: #475569 !important;
+    }
+    .dark .bg-white {
+      background-color: #334155 !important;
+    }
+    .dark .text-gray-700 {
+      color: #f1f5f9 !important;
+    }
+  </style>
+</head>
+<body id="mainBody" class="bg-gradient-to-r from-green-100 to-blue-100 min-h-screen transition-colors duration-300">
+
+  <!-- Navbar -->
+  <nav class="bg-blue-700 text-white px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">🎓 HostelEase - Student</h1>
+    <div class="flex gap-4 items-center">
+      <button onclick="toggleDarkMode()" class="bg-gray-200 text-black px-4 py-2 rounded-full hover:bg-gray-300 transition">🌗 Theme</button>
+      <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Dashboard -->
+  <div class="p-6 flex flex-col items-center">
+    <h2 class="text-2xl font-bold text-gray-700 mb-6">Welcome Student</h2>
+
+    <!-- Student Info -->
+    <div class="bg-white p-8 rounded-2xl shadow-md w-full max-w-md mb-8">
+      <h3 class="text-xl font-semibold mb-4 text-blue-800">Profile Information</h3>
+      <div id="info" class="space-y-3 text-gray-700"></div>
+      <button onclick="openEditProfile()" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full">✏️ Edit Name</button>
+    </div>
+
+    <!-- Fee Details -->
+    <div class="bg-white p-8 rounded-2xl shadow-md w-full max-w-md mb-8">
+      <h3 class="text-xl font-semibold mb-4 text-green-800">Fee Details</h3>
+      <div id="feeDetails" class="space-y-3 text-gray-700"></div>
+    </div>
+
+    <!-- Submit Complaint -->
+    <div class="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
+      <h3 class="text-xl font-semibold mb-4 text-red-700">Submit a Complaint</h3>
+      <form onsubmit="submitComplaint(event)" class="flex flex-col space-y-4">
+        <textarea id="complaintText" placeholder="Enter your complaint..." required class="w-full p-3 border border-red-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-400"></textarea>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-full">📢 Submit Complaint</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Edit Profile -->
+  <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-2xl shadow-lg w-80 space-y-4">
+      <h2 class="text-xl font-bold text-gray-700">Edit Profile</h2>
+      <input id="editNameInput" type="text" class="w-full p-3 border border-gray-300 rounded-xl" placeholder="Enter new name">
+      <div class="flex justify-end space-x-4">
+        <button onclick="closeEditProfile()" class="px-4 py-2 rounded-full bg-gray-300 hover:bg-gray-400">Cancel</button>
+        <button onclick="saveEditProfile()" class="px-4 py-2 rounded-full bg-blue-500 hover:bg-blue-600 text-white">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+    function loadStudent() {
+      const id = localStorage.getItem("loggedStudent");
+      const student = JSON.parse(localStorage.getItem(`student-${id}`));
+      if (student) {
+        document.getElementById('info').innerHTML = `
+          <p><strong>Name:</strong> ${student.name}</p>
+          <p><strong>ID:</strong> ${student.id}</p>
+          <p><strong>Room No:</strong> ${student.room || 'Not Assigned Yet'}</p>
+          <p><strong>Fee Paid:</strong> ₹${student.feePaid}</p>
+        `;
+        loadFeeDetails(student);
+        loadComplaints(id);
+      } else {
+        alert("No Student Found! Redirecting to login...");
+        location.href = "login.html";
+      }
+
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        document.getElementById('mainBody').classList.add('dark');
+      }
+    }
+
+    function loadFeeDetails(student) {
+      const totalFee = 50000;
+      const feePaid = student.feePaid || 0;
+      const feeDue = totalFee - feePaid;
+      document.getElementById('feeDetails').innerHTML = `
+        <p><strong>Total Hostel Fee:</strong> ₹${totalFee}</p>
+        <p><strong>Fee Paid:</strong> ₹${feePaid}</p>
+        <p><strong>Fee Due:</strong> ₹${feeDue}</p>
+      `;
+    }
+
+    function loadComplaints(studentId) {
+      const complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+      const studentComplaints = complaints.filter(c => c.id === studentId);
+
+      const compSection = document.createElement('div');
+      compSection.className = "bg-white p-6 rounded-2xl shadow-md w-full max-w-md mt-8";
+      compSection.innerHTML = `
+        <h3 class="text-xl font-semibold mb-4 text-red-700">Your Complaints</h3>
+        <div class="flex justify-between mb-4">
+          <button onclick="filterComplaints('all')" class="filter-tab bg-gray-200 hover:bg-blue-100 text-gray-700 px-3 py-1 rounded-full">All</button>
+          <button onclick="filterComplaints('pending')" class="filter-tab bg-yellow-100 hover:bg-yellow-200 text-yellow-700 px-3 py-1 rounded-full">Pending</button>
+          <button onclick="filterComplaints('seen')" class="filter-tab bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded-full">Seen</button>
+        </div>
+        <div id="complaintList" class="space-y-4"></div>
+      `;
+      document.querySelector('.p-6.flex.flex-col.items-center').appendChild(compSection);
+      window.fullComplaintList = studentComplaints;
+      filterComplaints('all');
+    }
+
+    function filterComplaints(type) {
+      const list = document.getElementById('complaintList');
+      const complaints = window.fullComplaintList || [];
+
+      document.querySelectorAll('.filter-tab').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.filter-tab').forEach(btn => {
+        if (btn.textContent.toLowerCase() === type) btn.classList.add('active');
+      });
+
+      list.innerHTML = '';
+      const filtered = complaints.filter(c => {
+        if (type === 'all') return true;
+        if (type === 'pending') return (c.status || "Pending") === "Pending";
+        if (type === 'seen') return c.status === "Seen";
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<p class="text-gray-400 text-center">No ${type} complaints.</p>`;
+        return;
+      }
+
+      filtered.forEach(c => {
+        const color = c.status === 'Pending' ? 'text-yellow-500' : 'text-green-600';
+        const statusText = c.status || "Pending";
+        list.innerHTML += `
+          <div class="border p-4 rounded-xl shadow-sm">
+            <p class="text-gray-700">${c.complaint}</p>
+            <p class="text-sm ${color}">Status: ${statusText}</p>
+          </div>
+        `;
+      });
+    }
+
+    function submitComplaint(event) {
+      event.preventDefault();
+      const id = localStorage.getItem("loggedStudent");
+      const complaintText = document.getElementById('complaintText').value.trim();
+      if (complaintText) {
+        const complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+        complaints.push({ id, complaint: complaintText, status: "Pending" });
+        localStorage.setItem('complaints', JSON.stringify(complaints));
+        alert("Complaint Submitted Successfully!");
+        location.reload();
+      }
+    }
+
+    function openEditProfile() {
+      document.getElementById('editModal').classList.remove('hidden');
+      const id = localStorage.getItem("loggedStudent");
+      const student = JSON.parse(localStorage.getItem(`student-${id}`));
+      document.getElementById('editNameInput').value = student.name;
+    }
+
+    function closeEditProfile() {
+      document.getElementById('editModal').classList.add('hidden');
+    }
+
+    function saveEditProfile() {
+      const id = localStorage.getItem("loggedStudent");
+      const newName = document.getElementById('editNameInput').value.trim();
+      if (newName) {
+        const student = JSON.parse(localStorage.getItem(`student-${id}`));
+        student.name = newName;
+        localStorage.setItem(`student-${id}`, JSON.stringify(student));
+        closeEditProfile();
+        loadStudent();
+        alert("Profile Updated Successfully!");
+      }
+    }
+
+    function toggleDarkMode() {
+      const body = document.getElementById('mainBody');
+      body.classList.toggle('dark');
+      const mode = body.classList.contains('dark') ? 'dark' : 'light';
+      localStorage.setItem('theme', mode);
+    }
+
+    function logout() {
+      localStorage.removeItem("loggedStudent");
+      location.href = "login.html";
+    }
+
+    window.onload = loadStudent;
+  </script>
+</body>
+</html>
+

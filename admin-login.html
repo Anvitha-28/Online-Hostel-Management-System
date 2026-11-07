@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login - HostelEase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-r from-purple-100 to-blue-200 min-h-screen flex flex-col justify-center items-center">
+
+  <h1 class="text-4xl font-bold mb-8 text-purple-800">🛡️ Admin Login</h1>
+
+  <div class="bg-white p-8 rounded-2xl shadow-xl w-80 flex flex-col items-center space-y-6">
+
+    <form onsubmit="adminLogin(event)" class="w-full">
+      <input id="username" type="text" placeholder="Username" required
+             class="w-full p-3 border border-purple-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4">
+      <input id="password" type="password" placeholder="Password" required
+             class="w-full p-3 border border-purple-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 mb-6">
+
+      <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full">
+        <i class="fas fa-sign-in-alt mr-2"></i> Login
+      </button>
+    </form>
+
+    <button onclick="location.href='login.html'" class="text-purple-700 hover:underline text-sm mt-4">
+      ← Back to Home
+    </button>
+
+  </div>
+
+  <script>
+    function adminLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      if (username === "admin" && password === "admin123") {
+        localStorage.setItem("adminLogged", "true");
+        location.href = "admin-dashboard.html";
+      } else {
+        alert("Invalid Admin credentials.");
+      }
+    }
+  </script>
+
+</body>
+</html>
+

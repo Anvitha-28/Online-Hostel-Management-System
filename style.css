@@ -1,0 +1,26 @@
+body {
+    font-family: Arial;
+    background-color: #f8f9fa;
+    padding: 20px;
+  }
+  h1, h2 {
+    color: #003366;
+  }
+  input, textarea, select {
+    display: block;
+    width: 300px;
+    margin: 10px 0;
+    padding: 8px;
+  }
+  button {
+    padding: 8px 15px;
+    background-color: #003366;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  ul li {
+    margin-bottom: 10px;
+  }
+  
+  

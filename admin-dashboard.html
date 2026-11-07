@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - HostelEase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-purple-700 text-white px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">🏠 HostelEase - Admin</h1>
+    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-full">Logout</button>
+  </nav>
+
+  <!-- Dashboard -->
+  <div class="p-6">
+    <h2 class="text-2xl font-bold text-gray-700 mb-6">Dashboard Overview</h2>
+
+    <!-- Cards Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+
+      <div class="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
+        <i class="fas fa-user-graduate text-4xl text-purple-700"></i>
+        <div>
+          <h3 class="text-xl font-bold" id="totalStudents">0</h3>
+          <p class="text-gray-500">Total Students</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
+        <i class="fas fa-money-bill-wave text-4xl text-green-600"></i>
+        <div>
+          <h3 class="text-xl font-bold" id="totalFees">₹0</h3>
+          <p class="text-gray-500">Total Fees Collected</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
+        <i class="fas fa-exclamation-circle text-4xl text-red-600"></i>
+        <div>
+          <h3 class="text-xl font-bold" id="totalComplaints">0</h3>
+          <p class="text-gray-500">Complaints</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col md:flex-row gap-6">
+      <button onclick="location.href='register.html'" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl">
+        ➕ Register Student
+      </button>
+      <button onclick="location.href='room.html'" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl">
+        🏠 Allocate Room
+      </button>
+      <button onclick="location.href='fee.html'" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl">
+        💰 Submit/View Fees
+      </button>
+      <button onclick="location.href='view.html'" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl">
+        📋 Manage Complaints & Students
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("adminLogged");
+      location.href = "login.html";
+    }
+
+    // Load dashboard data
+    window.onload = function() {
+      let studentCount = 0;
+      let totalFee = 0;
+      for (let key in localStorage) {
+        if (key.startsWith('student-')) {
+          studentCount++;
+          const student = JSON.parse(localStorage.getItem(key));
+          totalFee += student.feePaid || 0;
+        }
+      }
+      const complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+
+      document.getElementById('totalStudents').innerText = studentCount;
+      document.getElementById('totalFees').innerText = `₹${totalFee}`;
+      document.getElementById('totalComplaints').innerText = complaints.length;
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manage Students & Complaints - HostelEase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-r from-blue-100 to-purple-100 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-purple-700 text-white px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold">📋 Manage Students & Complaints</h1>
+    <button onclick="location.href='admin-dashboard.html'" class="bg-white text-purple-700 font-bold px-4 py-2 rounded-full">Back</button>
+  </nav>
+
+  <!-- Content -->
+  <div class="p-6">
+
+    <!-- Students Section -->
+    <div class="bg-white p-6 rounded-2xl shadow-md mb-10">
+      <h2 class="text-2xl font-bold text-gray-700 mb-4">🧑‍🎓 Students List</h2>
+      <input id="searchStudent" type="text" onkeyup="searchStudent()" placeholder="Search by Student ID" 
+             class="w-full mb-4 p-3 border border-purple-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500">
+
+      <div id="studentContainer" class="space-y-4"></div>
+    </div>
+
+    <!-- Complaints Section -->
+    <div class="bg-white p-6 rounded-2xl shadow-md">
+      <h2 class="text-2xl font-bold text-gray-700 mb-4">📢 Complaints</h2>
+      <div id="complaintContainer" class="space-y-4"></div>
+    </div>
+
+  </div>
+
+  <script>
+    function loadData() {
+  const studentContainer = document.getElementById('studentContainer');
+  const complaintContainer = document.getElementById('complaintContainer');
+
+  studentContainer.innerHTML = '';
+  complaintContainer.innerHTML = '';
+
+  // Load Students
+  for (let key in localStorage) {
+    if (key.startsWith("student-")) {
+      const s = JSON.parse(localStorage.getItem(key));
+      const studentCard = `
+        <div class="border p-4 rounded-xl shadow-sm flex justify-between items-center">
+          <div>
+            <p><strong>${s.name}</strong> (ID: ${s.id})</p>
+            <p>Room: ${s.room || 'Not Assigned'}</p>
+            <p>Fee Paid: ₹${s.feePaid}</p>
+          </div>
+          <button onclick="deleteStudent('${s.id}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full">Delete</button>
+        </div>
+      `;
+      studentContainer.innerHTML += studentCard;
+    }
+  }
+
+  // Load Complaints
+  const complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+
+  complaintContainer.innerHTML = `
+    <p class="text-sm mb-4">
+      Pending Complaints: 
+      <span class="font-bold text-yellow-600">${complaints.filter(c => (c.status || "Pending") === "Pending").length}</span>
+    </p>
+  `;
+
+  complaints.forEach((c, index) => {
+    const color = c.status === 'Pending' ? 'yellow-500' : (c.status === 'Seen' ? 'green-600' : 'gray-400');
+    const statusText = c.status ? c.status : "Pending";
+
+    const complaintCard = `
+      <div class="border p-4 rounded-xl shadow-sm flex justify-between items-center">
+        <div>
+          <p><strong>Student ID:</strong> ${c.id}</p>
+          <p class="text-gray-600">${c.complaint}</p>
+          <p class="text-sm text-${color}">Status: ${statusText}</p>
+        </div>
+        <div class="space-x-2">
+          ${statusText === "Pending" ? `<button onclick="markSeen(${index})" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-full">Mark as Seen</button>` : ''}
+          <button onclick="deleteComplaint(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full">Delete</button>
+        </div>
+      </div>
+    `;
+    complaintContainer.innerHTML += complaintCard;
+  });
+}
+
+function deleteStudent(id) {
+  if (confirm(`Are you sure you want to delete student ${id}?`)) {
+    localStorage.removeItem(`student-${id}`);
+    loadData();
+  }
+}
+
+function deleteComplaint(index) {
+  const complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+  complaints.splice(index, 1);
+  localStorage.setItem('complaints', JSON.stringify(complaints));
+  loadData();
+}
+
+function markSeen(index) {
+  const complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+  complaints[index].status = "Seen";
+  localStorage.setItem('complaints', JSON.stringify(complaints));
+  loadData();
+}
+
+function searchStudent() {
+  const input = document.getElementById('searchStudent').value.toLowerCase();
+  const students = document.querySelectorAll('#studentContainer > div');
+
+  students.forEach(card => {
+    if (card.innerText.toLowerCase().includes(input)) {
+      card.style.display = "";
+    } else {
+      card.style.display = "none";
+    }
+  });
+}
+
+window.onload = loadData;
+
+  </script>
+
+</body>
+</html>

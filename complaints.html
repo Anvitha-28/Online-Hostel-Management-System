@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Complaint Submission</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Submit Complaint</h2>
+  <form onsubmit="submitComplaint(event)">
+    <input id="compId" type="text" placeholder="Student ID" required />
+    <textarea id="complaintText" placeholder="Complaint" required></textarea>
+    <button type="submit">Submit</button>
+  </form>
+  <script>
+    function submitComplaint(event) {
+      event.preventDefault();
+      const id = document.getElementById('compId').value;
+      const complaint = document.getElementById('complaintText').value;
+      const complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+      complaints.push({ id, complaint });
+      localStorage.setItem('complaints', JSON.stringify(complaints));
+      alert("Complaint submitted!");
+      document.getElementById('complaintText').value = '';
+    }
+  </script>
+</body>
+</html>
