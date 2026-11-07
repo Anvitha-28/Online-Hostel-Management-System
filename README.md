@@ -132,6 +132,14 @@ Open `index.html`, right-click, and select **Open with Live Server**.
 
 The application will open in your default web browser.
 
+🔑 Admin Login Credentials
+
+- Username: admin
+- Password: admin123
+
+These credentials can be used to explore
+the Admin Dashboard.
+
 🔮 Future Enhancements
 
 - Database integration for persistent data storage.
